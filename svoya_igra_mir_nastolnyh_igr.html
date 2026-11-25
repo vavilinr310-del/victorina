@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Своя игра — Мир настольных игр</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+:root {
+  --bg: #f3f3ff;
+  --dark: #282950;
+  --purple: #8061e8;
+  --pink: #f4779d;
+  --blue: #54a9ee;
+  --green: #43bf96;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Nunito', sans-serif;
+  background:
+    radial-gradient(circle at 10% 10%, #e4e1ff 0, transparent 35%),
+    radial-gradient(circle at 90% 90%, #fff0d9 0, transparent 30%),
+    var(--bg);
+  color: var(--dark);
+}
+
+button { font-family: inherit; cursor: pointer; border: none; }
+
+header {
+  text-align: center;
+  padding: 30px 15px 15px;
+}
+
+.logo {
+  display: inline-block;
+  background: white;
+  color: var(--purple);
+  padding: 9px 22px;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 900;
+  box-shadow: 0 5px 15px #29265a12;
+}
+
+h1 {
+  font-size: clamp(30px, 5vw, 52px);
+  line-height: 1.1;
+  margin: 17px 0 8px;
+  font-weight: 900;
+}
+
+h1 span { color: var(--purple); }
+
+.subtitle {
+  color: #8586a3;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.container {
+  max-width: 1250px;
+  margin: auto;
+  padding: 15px;
+}
+
+/* КОМАНДЫ */
+
+.scores {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin: 20px 0 35px;
+}
+
+.score-card {
+  background: white;
+  padding: 17px 10px;
+  border-radius: 22px;
+  text-align: center;
+  box-shadow: 0 7px 20px #29265a12;
+  border-bottom: 6px solid var(--blue);
+}
+
+.score-card:nth-child(2) { border-color: var(--pink); }
+.score-card:nth-child(3) { border-color: var(--green); }
+
+.team-name {
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.team-input {
+  width: 85%;
+  max-width: 180px;
+  border: none;
+  outline: none;
+  background: #f2f0ff;
+  color: var(--dark);
+  border-radius: 10px;
+  padding: 8px 5px;
+  text-align: center;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.team-input:focus {
+  outline: 2px solid var(--purple);
+  background: white;
+}
+
+.score {
+  font-size: 38px;
+  font-weight: 900;
+  margin: 5px;
+}
+
+.score-card button {
+  background: #f0efff;
+  color: var(--purple);
+  padding: 9px 14px;
+  margin: 3px;
+  border-radius: 13px;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.board-title {
+  text-align: center;
+  font-weight: 900;
+  font-size: 25px;
+  margin: 25px 0;
+}
+
+/* ИГРОВОЕ ПОЛЕ */
+
+.board {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.category-row {
+  display: grid;
+  grid-template-columns: 1.15fr repeat(5, 1fr);
+  gap: 12px;
+}
+
+.category {
+  color: white;
+  border-radius: 20px;
+  min-height: 145px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 10px 5px;
+  font-size: 17px;
+  font-weight: 900;
+  box-shadow: 0 7px 0 #0002;
+}
+
+.category span {
+  font-size: 34px;
+  margin-bottom: 8px;
+}
+
+.category-row:nth-child(1) .category { background: #9070ed; }
+.category-row:nth-child(2) .category { background: #f28ba8; }
+.category-row:nth-child(3) .category { background: #56a9e9; }
+.category-row:nth-child(4) .category { background: #48bd9a; }
+.category-row:nth-child(5) .category { background: #e8ad48; }
+
+.question {
+  background: white;
+  color: var(--purple);
+  min-height: 145px;
+  border-radius: 20px;
+  font-size: clamp(21px, 3vw, 32px);
+  font-weight: 900;
+  box-shadow: 0 7px 0 #dedcf3;
+  transition: .2s;
+}
+
+.question:hover:not(:disabled) {
+  transform: translateY(-5px);
+  background: #f0edff;
+}
+
+.question:active:not(:disabled) {
+  transform: scale(.96);
+}
+
+.question.used {
+  background: #e0e1eb;
+  color: #a5a5b6;
+  box-shadow: none;
+  cursor: default;
+}
+
+/* ПОДСКАЗКИ */
+
+.legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 25px;
+  margin: 30px 0;
+  color: #8586a3;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.rules {
+  background: white;
+  padding: 22px;
+  border-radius: 22px;
+  margin-top: 30px;
+  box-shadow: 0 5px 20px #2221;
+}
+
+.rules p {
+  color: #777895;
+  line-height: 1.8;
+}
+
+.reset {
+  display: block;
+  margin: 22px auto;
+  background: white;
+  color: #8586a3;
+  padding: 13px 22px;
+  border-radius: 14px;
+  font-weight: 900;
+}
+
+/* ОКНО ВОПРОСА */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: #19183bcc;
+  z-index: 10;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  backdrop-filter: blur(7px);
+}
+
+.overlay.show { display: flex; }
+
+.modal {
+  background: white;
+  width: 100%;
+  max-width: 650px;
+  border-radius: 30px;
+  padding: 30px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 20px 70px #0003;
+  animation: appear .3s ease;
+}
+
+@keyframes appear {
+  from { opacity: 0; transform: scale(.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.close {
+  position: absolute;
+  top: 15px;
+  right: 18px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #f0eff7;
+  font-size: 22px;
+  color: #777;
+}
+
+.modal-icon { font-size: 50px; }
+
+.modal-category {
+  color: var(--purple);
+  font-weight: 900;
+  font-size: 17px;
+}
+
+.points {
+  display: inline-block;
+  background: #fff0c7;
+  color: #b17a00;
+  padding: 8px 20px;
+  border-radius: 30px;
+  font-weight: 900;
+  margin: 12px;
+}
+
+.modal h2 {
+  font-size: clamp(23px, 4vw, 34px);
+  line-height: 1.3;
+  margin: 20px 0;
+}
+
+.answer {
+  display: none;
+  background: #e6fff4;
+  border: 2px dashed #55c89e;
+  padding: 18px;
+  border-radius: 18px;
+  margin: 20px 0;
+  color: #188c64;
+  font-size: 23px;
+  font-weight: 900;
+}
+
+.answer.show { display: block; }
+
+.modal-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.btn {
+  padding: 14px;
+  border-radius: 15px;
+  font-size: 16px;
+  font-weight: 900;
+  transition: .2s;
+}
+
+.btn:hover { transform: translateY(-2px); }
+
+.btn-purple { background: var(--purple); color: white; }
+.btn-gray { background: #eeeef5; color: #777; }
+
+.team-buttons {
+  display: none;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.team-buttons.show { display: grid; }
+
+.team-buttons button {
+  min-height: 75px;
+  padding: 10px 5px;
+  font-size: 14px;
+  border-radius: 15px;
+  font-weight: 900;
+  color: white;
+}
+
+.team1 { background: var(--blue); }
+.team2 { background: var(--pink); }
+.team3 { background: var(--green); }
+
+.footer {
+  text-align: center;
+  padding: 30px 10px;
+  color: #9293aa;
+  font-weight: 700;
+}
+
+/* АДАПТАЦИЯ */
+
+@media(max-width: 700px) {
+  .container { padding: 10px; }
+  .scores { gap: 7px; }
+
+  .score-card {
+    padding: 14px 4px;
+    border-radius: 15px;
+  }
+
+  .team-name { font-size: 12px; }
+  .score { font-size: 29px; }
+
+  .team-input {
+    font-size: 11px;
+    width: 95%;
+  }
+
+  .score-card button {
+    font-size: 13px;
+    padding: 8px 9px;
+  }
+
+  .category-row {
+    grid-template-columns: 1.1fr repeat(5, 1fr);
+    gap: 5px;
+  }
+
+  .category {
+    min-height: 105px;
+    font-size: 11px;
+    border-radius: 11px;
+    padding: 5px 2px;
+  }
+
+  .category span { font-size: 24px; }
+
+  .question {
+    min-height: 105px;
+    font-size: 17px;
+    border-radius: 11px;
+    box-shadow: 0 5px 0 #dedcf3;
+  }
+
+  .board { gap: 9px; }
+  .team-buttons button { font-size: 11px; }
+  .modal { padding: 25px 15px; }
+}
+
+@media(max-width: 380px) {
+  .category { font-size: 9px; }
+  .question { font-size: 14px; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">🎲 ИГРОВАЯ ВИКТОРИНА</div>
+  <h1>СВОЯ ИГРА<br><span>Мир настольных игр</span></h1>
+  <div class="subtitle">
+    Проверим, кто здесь самый внимательный и сообразительный!
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="scores">
+    <div class="score-card">
+      <div class="team-name">
+        🔵 <input class="team-input" id="teamName1" value="Команда 1" maxlength="20">
+      </div>
+      <div class="score" id="score1">0</div>
+      <button onclick="changeScore(1,-10)">− 10</button>
+      <button onclick="changeScore(1,10)">+ 10</button>
+    </div>
+
+    <div class="score-card">
+      <div class="team-name">
+        🩷 <input class="team-input" id="teamName2" value="Команда 2" maxlength="20">
+      </div>
+      <div class="score" id="score2">0</div>
+      <button onclick="changeScore(2,-10)">− 10</button>
+      <button onclick="changeScore(2,10)">+ 10</button>
+    </div>
+
+    <div class="score-card">
+      <div class="team-name">
+        🟢 <input class="team-input" id="teamName3" value="Команда 3" maxlength="20">
+      </div>
+      <div class="score" id="score3">0</div>
+      <button onclick="changeScore(3,-10)">− 10</button>
+      <button onclick="changeScore(3,10)">+ 10</button>
+    </div>
+  </div>
+
+  <div class="board-title">✨ Выбирайте вопрос!</div>
+  <div class="board" id="board"></div>
+
+  <div class="legend">
+    <span>🟣 10 баллов</span>
+    <span>🩷 20 баллов</span>
+    <span>⭐ Чем сложнее, тем больше баллов!</span>
+  </div>
+
+  <div class="rules">
+    <h3>📖 Как играть?</h3>
+    <p>
+      1. Разделитесь на три команды.<br>
+      2. Выберите категорию и стоимость вопроса.<br>
+      3. Обсудите ответ вместе.<br>
+      4. Ведущий открывает правильный ответ.<br>
+      5. За правильный ответ команда получает баллы.<br>
+      6. Побеждает команда, набравшая больше всего баллов!
+    </p>
+  </div>
+
+  <button class="reset" onclick="resetGame()">🔄 Начать новую игру</button>
+</div>
+
+<div class="footer">Сделано с ❤️ для юных знатоков!</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <button class="close" onclick="closeModal()">×</button>
+    <div class="modal-icon">🎲</div>
+    <div class="modal-category" id="modalCategory"></div>
+    <div class="points" id="modalPoints"></div>
+    <h2 id="modalQuestion"></h2>
+    <div class="answer" id="modalAnswer"></div>
+
+    <div class="modal-buttons">
+      <button class="btn btn-purple" id="showAnswer" onclick="showAnswer()">
+        👀 Показать правильный ответ
+      </button>
+
+      <div class="team-buttons" id="teamButtons">
+        <button class="team1" onclick="awardPoints(1)">
+          🔵 <span id="modalTeam1">Команда 1</span><br>+ баллы
+        </button>
+        <button class="team2" onclick="awardPoints(2)">
+          🩷 <span id="modalTeam2">Команда 2</span><br>+ баллы
+        </button>
+        <button class="team3" onclick="awardPoints(3)">
+          🟢 <span id="modalTeam3">Команда 3</span><br>+ баллы
+        </button>
+      </div>
+
+      <button class="btn btn-gray" onclick="skipQuestion()">Закрыть вопрос без баллов</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const categories = [
+{
+  name:"Знакомые игры",
+  icon:"🎲",
+  questions:[
+    ["В какой игре нужно бросать кубик и ходить по клеткам?","В игре-ходилке."],
+    ["В какой игре нужно собрать картинку из кусочков?","В пазле."],
+    ["В какой игре нужно найти одинаковые картинки?","В игре «Мемори»."],
+    ["В какой игре строят башню из деревянных брусочков?","В игре «Дженга»."],
+    ["В какой игре нужно передвигать фишки по клеткам и прийти к финишу?","В игре-ходилке."]
+  ]
+},
+{
+  name:"Загадки",
+  icon:"🧩",
+  questions:[
+    ["Меня бросают на стол, и я показываю число от 1 до 6. Что я?","Игральный кубик."],
+    ["У меня есть король, ферзь и пешки. Что я?","Шахматы."],
+    ["Я состою из множества деталей, которые нужно соединить. Что я?","Пазл."],
+    ["У меня есть клетки, фишки и дорожки. По мне путешествуют к финишу. Что я?","Настольная игра-ходилка."],
+    ["У меня 52 карты, но я не атлас. Что я?","Игральная колода."]
+  ]
+},
+{
+  name:"Правила игр",
+  icon:"♟️",
+  questions:[
+    ["Сколько сторон обычно играет в шахматы?","Две."],
+    ["Что нужно сделать, чтобы выиграть в крестики-нолики?","Поставить три своих знака в ряд."],
+    ["Что делают игроки, когда наступает их очередь?","Делают ход."],
+    ["Можно ли передвигать чужие фишки без разрешения?","Нет."],
+    ["Что нужно сделать перед началом новой игры?","Договориться о правилах."]
+  ]
+},
+{
+  name:"На смекалку",
+  icon:"🧠",
+  questions:[
+    ["На столе 3 кубика. Сколько всего точек может быть на верхних гранях, если выпало по 6?","18 точек."],
+    ["У Маши 4 фишки, а у Пети на 2 больше. Сколько фишек у Пети?","6 фишек."],
+    ["В игре участвуют 4 человека. Один вышел. Сколько осталось?","3 человека."],
+    ["На поле 10 клеток. Фишка прошла 7. Сколько осталось до финиша?","3 клетки."],
+    ["У двух игроков по 5 карточек. Сколько карточек всего?","10 карточек."]
+  ]
+},
+{
+  name:"Интересные факты",
+  icon:"🎉",
+  questions:[
+    ["Как называется игра, в которой нужно строить слова из букв?","Эрудит."],
+    ["Как называется игра с чёрными и белыми клетками и фигурами?","Шахматы."],
+    ["Что помогает случайно определить количество шагов в некоторых играх?","Кубик."],
+    ["Как называется игра, где нужно угадать слово по рисункам?","Ребус."],
+    ["Как называется игра, в которой нужно объяснять слова без использования самого слова?","Крокодил."]
+  ]
+}
+];
+
+let scores = [0,0,0];
+let current = null;
+let used = [];
+
+const board = document.getElementById("board");
+
+function getTeamName(team) {
+  return document.getElementById("teamName" + team).value.trim() || "Команда " + team;
+}
+
+function updateTeamNames() {
+  for (let i = 1; i <= 3; i++) {
+    document.getElementById("modalTeam" + i).textContent = getTeamName(i);
+  }
+}
+
+for (let i = 1; i <= 3; i++) {
+  document.getElementById("teamName" + i).addEventListener("input", updateTeamNames);
+}
+
+function createBoard() {
+  board.innerHTML = "";
+
+  categories.forEach((category, catIndex) => {
+    const row = document.createElement("div");
+    row.className = "category-row";
+
+    const title = document.createElement("div");
+    title.className = "category";
+    title.innerHTML = `<span>${category.icon}</span>${category.name}`;
+    row.appendChild(title);
+
+    category.questions.forEach((question, qIndex) => {
+      const button = document.createElement("button");
+      button.className = "question";
+      const key = `${catIndex}-${qIndex}`;
+
+      if (used.includes(key)) {
+        button.classList.add("used");
+        button.disabled = true;
+        button.textContent = "✓";
+      } else {
+        button.textContent = (qIndex + 1) * 10;
+        button.onclick = () => openQuestion(catIndex, qIndex);
+      }
+      row.appendChild(button);
+    });
+
+    board.appendChild(row);
+  });
+}
+
+function openQuestion(catIndex, qIndex) {
+  const key = `${catIndex}-${qIndex}`;
+  if (used.includes(key)) return;
+
+  current = {
+    category: catIndex,
+    question: qIndex,
+    points: (qIndex + 1) * 10
+  };
+
+  const category = categories[catIndex];
+  const question = category.questions[qIndex];
+
+  document.getElementById("modalCategory").textContent = category.icon + " " + category.name;
+  document.getElementById("modalPoints").textContent = "⭐ " + current.points + " баллов";
+  document.getElementById("modalQuestion").textContent = question[0];
+  document.getElementById("modalAnswer").textContent = question[1];
+
+  document.getElementById("modalAnswer").classList.remove("show");
+  document.getElementById("showAnswer").style.display = "block";
+  document.getElementById("teamButtons").classList.remove("show");
+
+  updateTeamNames();
+  document.getElementById("overlay").classList.add("show");
+}
+
+function showAnswer() {
+  document.getElementById("modalAnswer").classList.add("show");
+  document.getElementById("showAnswer").style.display = "none";
+  document.getElementById("teamButtons").classList.add("show");
+}
+
+function awardPoints(team) {
+  if (!current) return;
+  scores[team - 1] += current.points;
+  used.push(`${current.category}-${current.question}`);
+  updateScores();
+  createBoard();
+  closeModal();
+}
+
+function skipQuestion() {
+  if (!current) return;
+  used.push(`${current.category}-${current.question}`);
+  createBoard();
+  closeModal();
+}
+
+function closeModal() {
+  document.getElementById("overlay").classList.remove("show");
+  current = null;
+}
+
+function changeScore(team, amount) {
+  scores[team - 1] = Math.max(0, scores[team - 1] + amount);
+  updateScores();
+}
+
+function updateScores() {
+  for (let i = 1; i <= 3; i++) {
+    document.getElementById("score" + i).textContent = scores[i - 1];
+  }
+}
+
+function resetGame() {
+  if (!confirm("Начать новую игру? Все баллы и вопросы будут сброшены.")) return;
+  scores = [0,0,0];
+  used = [];
+  current = null;
+  updateScores();
+  createBoard();
+  closeModal();
+}
+
+document.getElementById("overlay").addEventListener("click", function(e) {
+  if (e.target === this) closeModal();
+});
+
+document.addEventListener("keydown", function(e) {
+  if (e.key === "Escape") closeModal();
+});
+
+createBoard();
+updateScores();
+updateTeamNames();
+</script>
+
+</body>
+</html>
